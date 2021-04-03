@@ -2,9 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:rest_api_build/databases/data.dart';
+import 'package:rest_api_build/screens/category.dart';
+import 'package:rest_api_build/screens/image_view.dart';
+import 'package:rest_api_build/screens/search.dart';
+import 'package:rest_api_build/styles/stylesheet.dart';
 import 'package:rest_api_build/models/category_model.dart';
 import 'package:rest_api_build/models/wallpaper_model.dart';
-import 'package:rest_api_build/styles/stylesheet.dart';
 import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
@@ -16,8 +19,10 @@ class _HomePageState extends State<HomePage> {
   List<CategoriesModel> categories = new List();
   List<WallpaperModel> wallpapers = new List();
 
+  TextEditingController searchController = new TextEditingController();
+
   getTrendingWallpapers() async {
-    var url = Uri.parse("https://api.pexels.com/v1/curated?per_page=15&page=1");
+    var url = Uri.parse("https://api.pexels.com/v1/curated?per_page=40&page=1");
     var response = await http.get(url, headers: {"Authorization": api});
 
     // print(response.body.toString());
@@ -62,12 +67,22 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Expanded(
                       child: TextField(
+                        controller: searchController,
                         decoration: InputDecoration(
                             hintText: "Find Wallpaper",
                             border: InputBorder.none),
                       ),
                     ),
-                    Icon(Icons.search),
+                    InkWell(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => SearchPage(
+                                        searchQuery: searchController.text,
+                                      )));
+                        },
+                        child: Icon(Icons.search)),
                   ],
                 ),
               ),
@@ -108,35 +123,45 @@ class CategoryList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(right: 6),
-      child: Stack(
-        children: [
-          ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                imgUrl,
-                height: 60,
-                width: 140,
-                fit: BoxFit.cover,
-              )),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: Colors.black12,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => Categories(
+                      categoryName: title.toLowerCase(),
+                    )));
+      },
+      child: Container(
+        margin: EdgeInsets.only(right: 6),
+        child: Stack(
+          children: [
+            ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  imgUrl,
+                  height: 60,
+                  width: 140,
+                  fit: BoxFit.cover,
+                )),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.black12,
+              ),
+              height: 60,
+              width: 140,
+              alignment: Alignment.center,
+              child: Text(
+                title,
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16),
+              ),
             ),
-            height: 60,
-            width: 140,
-            alignment: Alignment.center,
-            child: Text(
-              title,
-              style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
