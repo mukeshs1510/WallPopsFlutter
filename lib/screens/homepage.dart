@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:rest_api_build/databases/data.dart';
@@ -21,11 +22,10 @@ class _HomePageState extends State<HomePage> {
 
   TextEditingController searchController = new TextEditingController();
 
-  getTrendingWallpapers() async {
-    var url = Uri.parse("https://api.pexels.com/v1/curated?per_page=40&page=1");
+  getTrendingWallpapers(int pageNumber) async {
+    var url = Uri.parse(
+        "https://api.pexels.com/v1/curated?per_page=25&page=$pageNumber}}");
     var response = await http.get(url, headers: {"Authorization": api});
-
-    // print(response.body.toString());
 
     Map<String, dynamic> jsonData = jsonDecode(response.body);
     jsonData["photos"].forEach((element) {
@@ -37,9 +37,11 @@ class _HomePageState extends State<HomePage> {
     setState(() {});
   }
 
+  BouncingScrollPhysics _bouncingScrollPhysics = BouncingScrollPhysics();
+
   @override
   void initState() {
-    getTrendingWallpapers();
+    getTrendingWallpapers(1);
     categories = getCategories();
     super.initState();
   }
@@ -54,6 +56,7 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
+        physics: _bouncingScrollPhysics,
         child: Container(
           child: Column(
             children: [
@@ -92,9 +95,9 @@ class _HomePageState extends State<HomePage> {
               Container(
                 height: 80,
                 child: ListView.builder(
+                    physics: _bouncingScrollPhysics,
                     padding: EdgeInsets.symmetric(horizontal: 20),
                     itemCount: categories.length,
-                    shrinkWrap: true,
                     scrollDirection: Axis.horizontal,
                     itemBuilder: (context, index) {
                       return CategoryList(
@@ -121,6 +124,9 @@ class CategoryList extends StatelessWidget {
 
   CategoryList({@required this.imgUrl, @required this.title});
 
+  Color randomColor() =>
+      Color((Random().nextDouble() * 0xFFFFFF).toInt() << 0).withOpacity(1.0);
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -136,14 +142,22 @@ class CategoryList extends StatelessWidget {
         margin: EdgeInsets.only(right: 6),
         child: Stack(
           children: [
-            ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  imgUrl,
-                  height: 60,
-                  width: 140,
-                  fit: BoxFit.cover,
-                )),
+            Container(
+              height: 60,
+              width: 140,
+              decoration: BoxDecoration(
+                color: randomColor(),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.network(
+                    imgUrl,
+                    height: 60,
+                    width: 140,
+                    fit: BoxFit.cover,
+                  )),
+            ),
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),

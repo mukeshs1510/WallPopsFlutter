@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -35,6 +37,9 @@ Widget appIcon() {
 // ),
 
 Widget WallpaperList({List<WallpaperModel> wallpapers, context}) {
+  Color randomColor() =>
+      Color((Random().nextDouble() * 0xFFFFFF).toInt() << 0).withOpacity(1.0);
+
   return Container(
     padding: EdgeInsets.symmetric(horizontal: 16),
     child: GridView.count(
@@ -58,13 +63,15 @@ Widget WallpaperList({List<WallpaperModel> wallpapers, context}) {
           child: Hero(
             tag: e.srcModel.portrait,
             child: Container(
+              decoration: BoxDecoration(
+                  color: randomColor(),
+                  borderRadius: BorderRadius.circular(18)),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Image.network(
-                  e.srcModel.portrait,
-                  fit: BoxFit.cover,
-                ),
-              ),
+                  borderRadius: BorderRadius.circular(18),
+                  child: Image.network(
+                    e.srcModel.portrait,
+                    fit: BoxFit.cover,
+                  )),
             ),
           ),
         ));
@@ -72,3 +79,9 @@ Widget WallpaperList({List<WallpaperModel> wallpapers, context}) {
     ),
   );
 }
+
+
+// Image.network(
+//                   e.srcModel.portrait,
+//                   fit: BoxFit.cover,
+//                 ),
